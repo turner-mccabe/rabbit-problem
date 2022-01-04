@@ -1,6 +1,5 @@
 from numpy import random
 import numpy as np
-from timer import timer
 import functools
 import time
 
@@ -770,7 +769,7 @@ print("starting_position:", s_pos)
 print("Success! Rabbit found in", guess_count, "moves!")
 
 # starting positions of 2 or 3 from the border are superior to other starting positions such as: 0 or 1, or in the middle
-eval_algo(select_lowest_max_p, trials=10000, starting_position=2, hole_count=100)
+eval_algo(select_lowest_max_p, trials=1000, starting_position=2, hole_count=100)
 
 
 
