@@ -105,7 +105,7 @@ T   20  21  22  23  24  25  26  27  28  29  30
 4   .75 .88 .5  .5  .75 .5  G   1   1   1   1
 5   .95 .63 .7  .63 .5  .35 .75 .5  G   1   1
 
-in the long run, without guesses in the area, these squares will equalize in probability, so it makes sense to guess in this sequence 
+in the long run, without guesses in the area, these central squares will equalize in probability, so it makes sense to guess in this sequence 
 so that we maintain a 'probability ripple', forcing increased chances to stay in front of us. 
 This explains why taking double steps is better than taking steps of 4, 6, or 8 in the variable_step_size_net()
 
@@ -572,7 +572,7 @@ def double_step_reset_net(reset_threshold = 0, hole_count=100):
 # we run the evaluation function multiple times to see how consistently the evaluation performs for each rabbit algorithm. 
 # if the evaluations are close to each other, then it is likely that it has converged. 
 
-@repeat(num_times=4)
+@repeat(num_times=3)
 @timer
 def eval_algo(rabbit_algo, trials, *args, **kwargs):
     """ evaluates the specified rabbit algorithm over the specified number of trials """
@@ -580,14 +580,12 @@ def eval_algo(rabbit_algo, trials, *args, **kwargs):
     if trials > 1000:
         print("Evaluating...")
 
-    # TODO we could consider defining the initial array state inside the evaluation function instead of inside the algo
     results = []
     for _ in range(trials):
         guess_count = rabbit_algo(*args, **kwargs)[1]
         # state array is available as the first value of the tuple returned by the rabbit algo
         results.append(guess_count)
 
-    # TODO do something with the results to save them in some way
     print(f"rabbit function {rabbit_algo.__name__!r} evaluated over {trials} trials. average performance:", np.average(results))
     kwargs_repr = [f"{k}={v!r}" for k, v in kwargs.items()]
     signature = ", ".join(kwargs_repr)
@@ -602,12 +600,12 @@ def eval_algo(rabbit_algo, trials, *args, **kwargs):
 # TODO make a boxplot of the results to show the distribution
 
 
-# uncomment the lines for the algorythms you'd like to test. Each one will be tested multiple times, 
+# uncomment the lines for the algos you'd like to test. Each one will be tested multiple times, 
 # based on the num_times value in the @repeat decorator above the eval function definition
 
 
 """random_guesses performance: EV of 100 """
-# eval_algo(random_guesses, trials=1000, hole_count=100) 
+eval_algo(random_guesses, trials=1000, hole_count=100) 
 
 """ circular_net performance: fails via infinite loop 50% of the time """
 # eval_algo(circular_net, trials=1000, starting_position=50, hole_count=100) 
@@ -627,7 +625,7 @@ def eval_algo(rabbit_algo, trials, *args, **kwargs):
 
 """ 
 Success! average performance : 75 ish (starting position doesn't really matter)"""
-# eval_algo(double_step_net, trials=5000, hole_count=100)
+eval_algo(double_step_net, trials=1000, hole_count=100)
 
 
 """ average performance : 75 ish, with step_size = 2 """
@@ -642,14 +640,17 @@ Success! average performance : 75 ish (starting position doesn't really matter)"
 
 """ average performance : 74, very small improvement to standard double_step_net. similar standard deviation"""
 """ This is the current best algorithm. """
-# eval_algo(double_step_tuned_net, trials=5000, hole_count=100)
+# eval_algo(double_step_tuned_net, trials=1000, hole_count=100)
 
 """ average performance : 76 ish, pretty comparable to standard double_step_net? more variance because 
 sometimes the rabbit will hide at the edges and you will miss him for a long time.
 However, it's also more likely that you get him in less than 75 moves, compared to the standard double net. 
 Standard deviation is about 80 compared to about 70 for the standard double_step_net
 this is a slightly more 'agressive' and risky strategy""" 
-# eval_algo(double_step_reset_net, trials=3000, hole_count=100)
+# eval_algo(double_step_reset_net, trials=1000, hole_count=100)
+
+
+
 
 
 
@@ -708,7 +709,7 @@ def test_p_state(move_count=10, hole_count = 10):
 
 
 # 'smart' solution
-def select_lowest_max_p(starting_position, hole_count):
+def select_best_p(starting_position, hole_count):
     """ algorithm to find the rabbit using the iterative probability state.
     Initial guess was originally random but now can be specified 
     then, Guesses the most probable spot. if there is a tie, it selects the lower of the two.  """
@@ -756,20 +757,20 @@ def select_lowest_max_p(starting_position, hole_count):
 
 
 
-# # example of how to run a single trial and print the results. used this for debugging rabbit and guess behavior
-s_pos = 2
-state, guess_count = select_lowest_max_p(starting_position=s_pos, hole_count=100)
-# state, guess_count = max_p_depth(starting_position=2, hole_count=20)
-print("here is the history of the rabbit search:")
-# for i in range(len(state)):
-#     print(state[i])
+# # # example of how to run a single trial and print the results. used this for debugging rabbit and guess behavior
+# s_pos = 2
+# state, guess_count = select_best_p(starting_position=s_pos, hole_count=100)
+# # state, guess_count = max_p_depth(starting_position=2, hole_count=20)
+# print("here is the history of the rabbit search:")
+# # for i in range(len(state)):
+# #     print(state[i])
 
-print("")
-print("starting_position:", s_pos)
-print("Success! Rabbit found in", guess_count, "moves!")
+# print("")
+# print("starting_position:", s_pos)
+# print("Success! Rabbit found in", guess_count, "moves!")
 
-# starting positions of 2 or 3 from the border are superior to other starting positions such as: 0 or 1, or in the middle
-eval_algo(select_lowest_max_p, trials=1000, starting_position=2, hole_count=100)
+# # starting positions of 2 or 3 from the border are superior to other starting positions such as: 0 or 1, or in the middle
+# eval_algo(select_best_p, trials=1000, starting_position=2, hole_count=100)
 
 
 
