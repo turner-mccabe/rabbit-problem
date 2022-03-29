@@ -101,9 +101,9 @@ In this  chart, G is the guessed square, and the number is the rough multiple of
 T   20  21  22  23  24  25  26  27  28  29  30  
 1   G   1   1   1   1   1   1   1   1   1   1
 2   1   .5  G   1   1   1   1   1   1   1   1
-3   .75 .5  1   .5  G   1   1   1   1   1   1
-4   .75 .88 .5  .5  .75 .5  G   1   1   1   1
-5   .95 .63 .7  .63 .5  .35 .75 .5  G   1   1
+3       .5  1   .5  G   1   1   1   1   1   1
+4           .5  .5  .75 .5  G   1   1   1   1
+5               .63 .5  .35 .75 .5  G   1   1
 
 in the long run, without guesses in the area, these central squares will equalize in probability, so it makes sense to guess in this sequence 
 so that we maintain a 'probability ripple', forcing increased chances to stay in front of us. 
@@ -608,11 +608,11 @@ def eval_algo(rabbit_algo, trials, *args, **kwargs):
 eval_algo(random_guesses, trials=1000, hole_count=100) 
 
 """ circular_net performance: fails via infinite loop 50% of the time """
-# eval_algo(circular_net, trials=1000, starting_position=50, hole_count=100) 
+# eval_algo(circular_net, trials=100, starting_position=50, hole_count=100) 
 
 """ average performance : 1630, when starting from position 50"""
 """ starting position 10 is much worse, with an average of 52,600 turns """
-# eval_algo(never_move, trials = 1000, starting_position=10, hole_count=100) 
+# eval_algo(never_move, trials = 1, starting_position=30, hole_count=100) 
 
 """ average performance : 111, with sync_threshold = 75"""
 """ average performance : 286, with sync_threshold = 50"""
@@ -625,7 +625,7 @@ eval_algo(random_guesses, trials=1000, hole_count=100)
 
 """ 
 Success! average performance : 75 ish (starting position doesn't really matter)"""
-eval_algo(double_step_net, trials=1000, hole_count=100)
+# eval_algo(double_step_net, trials=1000, hole_count=100)
 
 
 """ average performance : 75 ish, with step_size = 2 """
@@ -770,7 +770,7 @@ def select_best_p(starting_position, hole_count):
 # print("Success! Rabbit found in", guess_count, "moves!")
 
 # # starting positions of 2 or 3 from the border are superior to other starting positions such as: 0 or 1, or in the middle
-# eval_algo(select_best_p, trials=1000, starting_position=2, hole_count=100)
+# eval_algo(select_best_p, trials=5000, starting_position=41, hole_count=100)
 
 
 

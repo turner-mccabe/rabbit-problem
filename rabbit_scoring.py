@@ -113,6 +113,121 @@ def find_next_p_state(p_state):
 
     return next_state
 
+def random_guesses(guess_limit=100, hole_count=100):
+    """ algorithm to find the rabbit with completely random guesses. 
+    This is basically just practice to set up the logical flow of a rabbit-guessing algorithm """
+    p_state_list = []
+    # 2. make an initial guess - this one is random
+    g_pos = random.randint(0, hole_count)
+    # 3. increment the guess_count
+    guess_count = 1
+    # 6. Set the initial probability state
+    p_state = gen_initial_probability(hole_count, g_pos)
+    # initialize lists for output
+    g_pos_list = [g_pos]
+    p_sum_list = [sum(p_state)]
+    p_state_list = [p_state]
+    # This is the key line
+    p_state = find_next_p_state(p_state)
+    while guess_count < guess_limit:
+        # make next guess
+        g_pos = random.randint(0, hole_count)
+        # set the probability to 0 at the location of the current state
+        p_state[g_pos] = 0
+
+        # append p_sum_list
+        g_pos_list.append(g_pos)
+        p_sum_list.append(sum(p_state))
+        p_state_list.append(p_state)
+        # 7. calculate the new probability array
+        p_state = find_next_p_state(p_state)
+
+        # 4. increment the guess count
+        guess_count += 1
+
+
+    return p_state_list, g_pos_list, p_sum_list
+
+# 'smart' solution
+def visual_select_best_p(starting_position, guess_limit=100, hole_count=100):
+    """ algorithm to reduce the probability as quickly as possible. """
+    p_state_list = []
+    # 2. make an initial guess - this one is random
+    g_pos = starting_position
+    # 3. increment the guess_count
+    guess_count = 1
+    # 6. Set the initial probability state
+    p_state = gen_initial_probability(hole_count, g_pos)
+    # initialize lists for output
+    g_pos_list = [g_pos]
+    p_sum_list = [sum(p_state)]
+    p_state_list = [p_state]
+    # This is the key line
+    p_state = find_next_p_state(p_state)
+    while guess_count < guess_limit:
+        # 3. use the aray of probabilities to make a guess. Tie goes to the lowest index value
+        max_p = max(p_state)
+        # find the index of the maximum probability
+        for i in range(len(p_state)):
+            if p_state[i]==max_p:
+                g_pos = i
+                break
+        # set the probability to 0 at the location of the current state
+        p_state[g_pos] = 0
+
+        # append p_sum_list
+        g_pos_list.append(g_pos)
+        p_sum_list.append(sum(p_state))
+        p_state_list.append(p_state)
+        # 7. calculate the new probability array
+        p_state = find_next_p_state(p_state)
+
+        # 4. increment the guess count
+        guess_count += 1
+
+    p_state_list.append(p_state)
+    return p_state_list, g_pos_list, p_sum_list
+
+
+"""
+41 is not the best place to guess. There was a small issue with the algorythm causing it to guess 0 on the second guess every time. 
+This had a small impact on the scoring of the algo
+Now that we fix this issue, we should be able to get better scores. 
+"""
+
+
+# # determine best starting position:
+# 39 is best starting position
+# i_list = []
+# x_list = []
+# for i in range(0, 149):
+#     p_state_list, g_pos_list, p_sum_list = visual_select_best_p(i, 5000, 150)
+#     x = score(p_sum_list)
+#     i_list.append(i)
+#     x_list.append(x)
+#     print(i, x)
+
+# # visualize
+# p_state_list, g_pos_list, p_sum_list = visual_select_best_p(39, 5000, 200)
+# x = score(p_sum_list)
+# print(x)
+
+# # visualize
+p_state_list, g_pos_list, p_sum_list = random_guesses(5000, 100)
+x = score(p_sum_list)
+print(x)
+
+# d = {"x":x_list, "i":i_list}
+# df = pd.DataFrame(d)
+# # print(df)
+# df.to_csv("minima2.csv")
+
+moves_df = pd.DataFrame(p_state_list)
+moves_df.to_csv("random_visual.csv")
+
+# d = {"select_best_p_guess":g_pos_list, "select_best_p_performance":p_sum_list}
+# moves_df = pd.DataFrame(d)
+# moves_df.to_csv("random_visual.csv")
 
 # 'smart' solution
 def select_best_p(starting_position, guess_limit=100, hole_count=100):
@@ -145,35 +260,6 @@ def select_best_p(starting_position, guess_limit=100, hole_count=100):
         # 4. increment the guess count
         guess_count += 1
 
-    return g_pos_list, p_sum_list
-
-
-def random_guesses(guess_limit=100, hole_count=100):
-    """ algorithm to find the rabbit with completely random guesses. 
-    This is basically just practice to set up the logical flow of a rabbit-guessing algorithm """
-    # 2. use algo to make an initial guess
-    g_pos = random.randint(0, hole_count)
-    # 3. increment the guess_count
-    guess_count = 1
-    # 6. Set the initial probability state
-    p_state = gen_initial_probability(hole_count, g_pos)
-    # initialize lists for output
-    g_pos_list = [g_pos]
-    p_sum_list = [sum(p_state)]
-
-    while guess_count < guess_limit:
-        # 3. use the algo to make a guess
-        g_pos = random.randint(0, hole_count)
-        # set the probability to 0 at the location of the current state
-        p_state[g_pos] = 0
-        # append output lists
-        g_pos_list.append(g_pos)
-        p_sum_list.append(sum(p_state))
-        # 7. calculate the new probability array
-        p_state = find_next_p_state(p_state)
-        # 4. increment the guess count
-        guess_count += 1
-        
     return g_pos_list, p_sum_list
 
 
@@ -509,6 +595,14 @@ def select_best_1deep_p(starting_position, guess_limit=100, hole_count=100):
 # g_pos_list, p_sum_list = select_best_p(41, 5000)
 # x = score(p_sum_list)
 # print(x)
+
+
+# # 41 is the best starting position
+# g_pos_list, p_sum_list = random_guesses(5000)
+# x = score(p_sum_list)
+# print(x)
+
+
 
 
 # # find double step tuned net performance
